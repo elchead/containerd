@@ -45,7 +45,6 @@ var _ = math.Inf
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
-
 type Protocol int32
 
 const (
@@ -241,6 +240,297 @@ func (x SecurityProfile_ProfileType) String() string {
 
 func (SecurityProfile_ProfileType) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_00212fb1f9d3bf1c, []int{8, 0}
+}
+
+type CheckpointContainerRequest struct {
+	// ID of the container to start.
+	ContainerId string `protobuf:"bytes,1,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	// Options for the checkpoint creation.
+	Options              *CheckpointContainerOptions `protobuf:"bytes,2,opt,name=options,proto3" json:"options,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
+	XXX_sizecache        int32                       `json:"-"`
+}
+
+func (m *CheckpointContainerRequest) Reset()      { *m = CheckpointContainerRequest{} }
+func (*CheckpointContainerRequest) ProtoMessage() {}
+func (*CheckpointContainerRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{51}
+}
+func (m *CheckpointContainerRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CheckpointContainerRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CheckpointContainerRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CheckpointContainerRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CheckpointContainerRequest.Merge(m, src)
+}
+func (m *CheckpointContainerRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *CheckpointContainerRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CheckpointContainerRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CheckpointContainerRequest proto.InternalMessageInfo
+
+func (m *CheckpointContainerRequest) GetContainerId() string {
+	if m != nil {
+		return m.ContainerId
+	}
+	return ""
+}
+
+func (m *CheckpointContainerRequest) GetOptions() *CheckpointContainerOptions {
+	if m != nil {
+		return m.Options
+	}
+	return nil
+}
+
+type CheckpointContainerResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CheckpointContainerResponse) Reset()      { *m = CheckpointContainerResponse{} }
+func (*CheckpointContainerResponse) ProtoMessage() {}
+func (*CheckpointContainerResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{52}
+}
+func (m *CheckpointContainerResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CheckpointContainerResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CheckpointContainerResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CheckpointContainerResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CheckpointContainerResponse.Merge(m, src)
+}
+func (m *CheckpointContainerResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CheckpointContainerResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CheckpointContainerResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CheckpointContainerResponse proto.InternalMessageInfo
+
+// CheckpointContainerOptions contains options for a CheckpointContainerRequest
+// Due to the amount of possible parameters, it is easier to implement this way.
+// TODO(schrej): Add all options that are supported by runc (?)
+type CheckpointContainerOptions struct {
+	// Path where the checkpoint should be created
+	CheckpointPath string `protobuf:"bytes,1,opt,name=checkpoint_path,json=checkpointPath,proto3" json:"checkpoint_path,omitempty"`
+	// Whether to leave the container running after checkpoint creation.
+	LeaveRunning         bool     `protobuf:"varint,2,opt,name=leave_running,json=leaveRunning,proto3" json:"leave_running,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CheckpointContainerOptions) Reset()      { *m = CheckpointContainerOptions{} }
+func (*CheckpointContainerOptions) ProtoMessage() {}
+func (*CheckpointContainerOptions) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{53}
+}
+func (m *CheckpointContainerOptions) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CheckpointContainerOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CheckpointContainerOptions.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CheckpointContainerOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CheckpointContainerOptions.Merge(m, src)
+}
+func (m *CheckpointContainerOptions) XXX_Size() int {
+	return m.Size()
+}
+func (m *CheckpointContainerOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_CheckpointContainerOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CheckpointContainerOptions proto.InternalMessageInfo
+
+func (m *CheckpointContainerOptions) GetCheckpointPath() string {
+	if m != nil {
+		return m.CheckpointPath
+	}
+	return ""
+}
+
+func (m *CheckpointContainerOptions) GetLeaveRunning() bool {
+	if m != nil {
+		return m.LeaveRunning
+	}
+	return false
+}
+
+type RestoreContainerRequest struct {
+	// ID of the container to start.
+	ContainerId string `protobuf:"bytes,1,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	// Options for the checkpoint restore.
+	Options              *RestoreContainerOptions `protobuf:"bytes,2,opt,name=options,proto3" json:"options,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
+	XXX_sizecache        int32                    `json:"-"`
+}
+
+func (m *RestoreContainerRequest) Reset()      { *m = RestoreContainerRequest{} }
+func (*RestoreContainerRequest) ProtoMessage() {}
+func (*RestoreContainerRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{54}
+}
+func (m *RestoreContainerRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RestoreContainerRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RestoreContainerRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RestoreContainerRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RestoreContainerRequest.Merge(m, src)
+}
+func (m *RestoreContainerRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *RestoreContainerRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RestoreContainerRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RestoreContainerRequest proto.InternalMessageInfo
+
+func (m *RestoreContainerRequest) GetContainerId() string {
+	if m != nil {
+		return m.ContainerId
+	}
+	return ""
+}
+
+func (m *RestoreContainerRequest) GetOptions() *RestoreContainerOptions {
+	if m != nil {
+		return m.Options
+	}
+	return nil
+}
+
+type RestoreContainerResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RestoreContainerResponse) Reset()      { *m = RestoreContainerResponse{} }
+func (*RestoreContainerResponse) ProtoMessage() {}
+func (*RestoreContainerResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{55}
+}
+func (m *RestoreContainerResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RestoreContainerResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RestoreContainerResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RestoreContainerResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RestoreContainerResponse.Merge(m, src)
+}
+func (m *RestoreContainerResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *RestoreContainerResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RestoreContainerResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RestoreContainerResponse proto.InternalMessageInfo
+
+// RestoreContainerOptions contains options for a RestoreContainerRequest
+// Due to the amount of possible parameters, it is easier to implement this way.
+// TODO(schrej): Add all options that are supported by runc (?)
+type RestoreContainerOptions struct {
+	// Path of the checkpoint to restore.
+	CheckpointPath       string   `protobuf:"bytes,1,opt,name=checkpoint_path,json=checkpointPath,proto3" json:"checkpoint_path,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RestoreContainerOptions) Reset()      { *m = RestoreContainerOptions{} }
+func (*RestoreContainerOptions) ProtoMessage() {}
+func (*RestoreContainerOptions) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{56}
+}
+func (m *RestoreContainerOptions) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RestoreContainerOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RestoreContainerOptions.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RestoreContainerOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RestoreContainerOptions.Merge(m, src)
+}
+func (m *RestoreContainerOptions) XXX_Size() int {
+	return m.Size()
+}
+func (m *RestoreContainerOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_RestoreContainerOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RestoreContainerOptions proto.InternalMessageInfo
+
+func (m *RestoreContainerOptions) GetCheckpointPath() string {
+	if m != nil {
+		return m.CheckpointPath
+	}
+	return ""
 }
 
 type VersionRequest struct {
@@ -8002,6 +8292,12 @@ func init() {
 	proto.RegisterType((*StopContainerResponse)(nil), "runtime.v1alpha2.StopContainerResponse")
 	proto.RegisterType((*RemoveContainerRequest)(nil), "runtime.v1alpha2.RemoveContainerRequest")
 	proto.RegisterType((*RemoveContainerResponse)(nil), "runtime.v1alpha2.RemoveContainerResponse")
+	proto.RegisterType((*CheckpointContainerRequest)(nil), "runtime.v1alpha2.CheckpointContainerRequest")
+	proto.RegisterType((*CheckpointContainerResponse)(nil), "runtime.v1alpha2.CheckpointContainerResponse")
+	proto.RegisterType((*CheckpointContainerOptions)(nil), "runtime.v1alpha2.CheckpointContainerOptions")
+	proto.RegisterType((*RestoreContainerRequest)(nil), "runtime.v1alpha2.RestoreContainerRequest")
+	proto.RegisterType((*RestoreContainerResponse)(nil), "runtime.v1alpha2.RestoreContainerResponse")
+	proto.RegisterType((*RestoreContainerOptions)(nil), "runtime.v1alpha2.RestoreContainerOptions")
 	proto.RegisterType((*ContainerStateValue)(nil), "runtime.v1alpha2.ContainerStateValue")
 	proto.RegisterType((*ContainerFilter)(nil), "runtime.v1alpha2.ContainerFilter")
 	proto.RegisterMapType((map[string]string)(nil), "runtime.v1alpha2.ContainerFilter.LabelSelectorEntry")

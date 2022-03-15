@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/containerd/containerd"
-	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
 )
@@ -12,7 +11,7 @@ import (
 func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreContainerRequest) (retRes *runtime.RestoreContainerResponse, retErr error) {
 
 	if err := c.startContainer(ctx, r.GetContainerId(), containerd.WithRestoreImagePath(r.GetOptions().GetCheckpointPath())); err != nil {
-		return nil, errors.Wrap(err, "failed to restore container")
+		return nil, fmt.Errorf("failed to restore container: %v", err)
 	}
 	return &runtime.RestoreContainerResponse{}, nil
 }

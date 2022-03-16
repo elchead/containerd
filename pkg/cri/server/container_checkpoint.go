@@ -1,15 +1,15 @@
 package server
 
 import (
-	"syscall"
-
+	"fmt"
 	"github.com/containerd/containerd"
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
+	"syscall"
 )
 
 func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.CheckpointContainerRequest) (retRes *runtime.CheckpointContainerResponse, retErr error) {
-	cntr, err := c.containerStore.Get(r.GetContainerId())
+	cntr, err := c.containerStore.Get(r.GetContainerID())
 	if err != nil {
 		return nil, fmt.Errorf("failed to find container: %v", err)
 	}

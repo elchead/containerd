@@ -40,11 +40,11 @@ import (
 )
 
 // StartContainer starts the container.
-func (c *criService) StartContainer(ctx context.Context, r *runtime_alpha.StartContainerRequest) (retRes *runtime_alpha.StartContainerResponse, retErr error) {
+func (c *criService) StartContainer(ctx context.Context, r *runtime.StartContainerRequest) (retRes *runtime.StartContainerResponse, retErr error) {
 	start := time.Now()
-	cntr, err := c.containerStore.Get(r.GetContainerID())
+	cntr, err := c.containerStore.Get(r.GetContainerId())
 	if err != nil {
-		return nil, fmt.Errorf("an error occurred when try to find container %q: %w", r.GetContainerID(), err)
+		return nil, fmt.Errorf("an error occurred when try to find container %q: %w", r.GetContainerId(), err)
 	}
 
 	info, err := cntr.Container.Info(ctx)
@@ -179,7 +179,7 @@ func (c *criService) StartContainer(ctx context.Context, r *runtime_alpha.StartC
 
 	containerStartTimer.WithValues(info.Runtime.Name).UpdateSince(start)
 
-	return &runtime_alpha.StartContainerResponse{}, nil
+	return &runtime.StartContainerResponse{}, nil
 }
 
 // setContainerStarting sets the container into starting state. In starting state, the

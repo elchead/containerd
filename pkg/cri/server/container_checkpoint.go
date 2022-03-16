@@ -23,8 +23,8 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 	}
 	_, err = task.Checkpoint(ctx, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to checkpoint container: %v",err)
-
+		return nil, fmt.Errorf("failed to checkpoint container: %v", err)
+	}
 
 	if !r.GetOptions().GetLeaveRunning() {
 		task.Kill(ctx, syscall.SIGKILL)

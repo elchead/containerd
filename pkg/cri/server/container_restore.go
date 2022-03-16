@@ -10,9 +10,9 @@ import (
 // RestoreContainer restores a container from a previously created image.
 // It's essentially the same as starting a container with the additon of loading a checkpoint.
 func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreContainerRequest) (retRes *runtime.RestoreContainerResponse, retErr error) {
-
-	if err := c.StartContainer(ctx, r.GetContainerID(), containerd.WithRestoreImagePath(r.GetOptions().GetCheckpointPath())); err != nil {
-		return nil, fmt.Errorf("failed to restore container: %v", err)
-	}
+	// if err := c.StartContainer(ctx, r.GetContainerID(), containerd.WithRestoreImagePath(r.GetOptions().GetCheckpointPath())); err != nil {
+	// 	#TODO
+	// 	return nil, fmt.Errorf("failed to restore container: %v", err)
+	// }
 	return &runtime.RestoreContainerResponse{}, nil
 }

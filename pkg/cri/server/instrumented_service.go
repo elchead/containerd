@@ -46,32 +46,32 @@ func newInstrumentedAlphaService(c *criService) grpcAlphaServices {
 	return &instrumentedAlphaService{c: c}
 }
 
-func (in *instrumentedService) RestoreContainer(ctx context.Context, r *runtime.RestoreContainerRequest) (_ *runtime.RestoreContainerResponse, err error) {
+func (in *instrumentedService) RestoreContainer(ctx context.Context, r *runtime_alpha.RestoreContainerRequest) (_ *runtime_alpha.RestoreContainerResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
-	log.G(ctx).Infof("RestoreContainer for %q with %s", r.GetContainerId(), r.GetOptions().GetCheckpointPath())
+	log.G(ctx).Infof("RestoreContainer for %q with %s", r.GetContainerID(), r.GetOptions().GetCheckpointPath())
 	defer func() {
 		if err != nil {
-			log.G(ctx).WithError(err).Errorf("RestoreContainer for %q failed", r.GetContainerId())
+			log.G(ctx).WithError(err).Errorf("RestoreContainer for %q failed", r.GetContainerID())
 		} else {
-			log.G(ctx).Infof("RestoreContainer for %q returns successfully", r.GetContainerId())
+			log.G(ctx).Infof("RestoreContainer for %q returns successfully", r.GetContainerID())
 		}
 	}()
 	res, err := in.c.RestoreContainer(ctrdutil.WithNamespace(ctx), r)
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedService) CheckpointContainer(ctx context.Context, r *runtime.CheckpointContainerRequest) (res *runtime.CheckpointContainerResponse, err error) {
+func (in *instrumentedService) CheckpointContainer(ctx context.Context, r *runtime_alpha.CheckpointContainerRequest) (res *runtime_alpha.CheckpointContainerResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
-	log.G(ctx).Infof("CheckpointContainer for %q at %s", r.GetContainerId(), r.GetOptions().GetCheckpointPath())
+	log.G(ctx).Infof("CheckpointContainer for %q at %s", r.GetContainerID(), r.GetOptions().GetCheckpointPath())
 	defer func() {
 		if err != nil {
-			log.G(ctx).WithError(err).Errorf("CheckpointContainer for %q failed", r.GetContainerId())
+			log.G(ctx).WithError(err).Errorf("CheckpointContainer for %q failed", r.GetContainerID())
 		} else {
-			log.G(ctx).Infof("CheckpointContainer for %q returns successfully", r.GetContainerId())
+			log.G(ctx).Infof("CheckpointContainer for %q returns successfully", r.GetContainerID())
 		}
 	}()
 	res, err = in.c.CheckpointContainer(ctrdutil.WithNamespace(ctx), r)

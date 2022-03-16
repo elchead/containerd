@@ -26,25 +26,25 @@ import (
 	containerdio "github.com/containerd/containerd/cio"
 	"github.com/containerd/containerd/errdefs"
 	"github.com/containerd/containerd/log"
-	"github.com/containerd/nri"
-	v1 "github.com/containerd/nri/types/v1"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/net/context"
-	runtime "k8s.io/cri-api/pkg/apis/runtime/v1"
-
 	cio "github.com/containerd/containerd/pkg/cri/io"
 	containerstore "github.com/containerd/containerd/pkg/cri/store/container"
 	sandboxstore "github.com/containerd/containerd/pkg/cri/store/sandbox"
 	ctrdutil "github.com/containerd/containerd/pkg/cri/util"
 	cioutil "github.com/containerd/containerd/pkg/ioutil"
+	"github.com/containerd/nri"
+	v1 "github.com/containerd/nri/types/v1"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
+	runtime "k8s.io/cri-api/pkg/apis/runtime/v1"
+	runtime_alpha "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
 )
 
 // StartContainer starts the container.
-func (c *criService) StartContainer(ctx context.Context, r *runtime.StartContainerRequest) (retRes *runtime.StartContainerResponse, retErr error) {
+func (c *criService) StartContainer(ctx context.Context, r *runtime_alpha.StartContainerRequest) (retRes *runtime_alpha.StartContainerResponse, retErr error) {
 	start := time.Now()
-	cntr, err := c.containerStore.Get(r.GetContainerId())
+	cntr, err := c.containerStore.Get(r.GetContainerID())
 	if err != nil {
-		return nil, fmt.Errorf("an error occurred when try to find container %q: %w", r.GetContainerId(), err)
+		return nil, fmt.Errorf("an error occurred when try to find container %q: %w", r.GetContainerID(), err)
 	}
 
 	info, err := cntr.Container.Info(ctx)
@@ -179,7 +179,7 @@ func (c *criService) StartContainer(ctx context.Context, r *runtime.StartContain
 
 	containerStartTimer.WithValues(info.Runtime.Name).UpdateSince(start)
 
-	return &runtime.StartContainerResponse{}, nil
+	return &runtime_alpha.StartContainerResponse{}, nil
 }
 
 // setContainerStarting sets the container into starting state. In starting state, the

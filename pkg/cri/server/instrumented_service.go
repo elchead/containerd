@@ -83,6 +83,21 @@ func (in *instrumentedService) RunPodSandbox(ctx context.Context, r *runtime.Run
 	res, err = in.c.RunPodSandbox(ctrdutil.WithNamespace(ctx), r)
 	return res, errdefs.ToGRPC(err)
 }
+func (in *instrumentedAlphaService) CheckpointContainer(ctx context.Context, r *runtime.CheckpointContainerRequest) (res *runtime.CheckpointContainerResponse, err error) {
+	if err := in.checkInitialized(); err != nil {
+		return nil, err
+	}
+	log.G(ctx).Infof("CheckpointContainer for %q at %s", r.GetContainerId(), r.GetOptions().GetCheckpointPath())
+	defer func() {
+		if err != nil {
+			log.G(ctx).WithError(err).Errorf("CheckpointContainer for %q failed", r.GetContainerId())
+		} else {
+			log.G(ctx).Infof("CheckpointContainer for %q returns successfully", r.GetContainerId())
+		}
+	}()
+	res, err = in.c.CheckpointContainer(ctrdutil.WithNamespace(ctx), r)
+	return res, errdefs.ToGRPC(err)
+}
 
 func (in *instrumentedAlphaService) RunPodSandbox(ctx context.Context, r *runtime_alpha.RunPodSandboxRequest) (res *runtime_alpha.RunPodSandboxResponse, err error) {
 	if err := in.checkInitialized(); err != nil {

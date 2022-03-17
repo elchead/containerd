@@ -1,3 +1,11 @@
+# Custom version to support for container migration in K8s
+
+This version extends the CRI interface to support pod migration in K8s for a PoC. The modified Kubernetes compatible with this container runtime can be found [here](https://github.com/elchead/kubernetes). It is based on this [work](https://github.com/schrej/containerd-cri).
+The checkpoint image is transferred using an azure file server (see `./pkg/cri/util/zip.go`).
+The necessary url and token need to be provided in a file (`token.env`).
+
+---
+
 ![containerd banner light mode](https://raw.githubusercontent.com/cncf/artwork/master/projects/containerd/horizontal/color/containerd-horizontal-color.png#gh-light-mode-only)
 ![containerd banner dark mode](https://raw.githubusercontent.com/cncf/artwork/master/projects/containerd/horizontal/white/containerd-horizontal-white.png#gh-dark-mode-only)
 
@@ -18,21 +26,23 @@ containerd is designed to be embedded into a larger system, rather than being us
 ## Now Recruiting
 
 We are a large inclusive OSS project that is welcoming help of any kind shape or form:
-* Documentation help is needed to make the product easier to consume and extend.
-* We need OSS community outreach / organizing help to get the word out; manage
-and create messaging and educational content; and to help with social media, community forums/groups, and google groups.
-* We are actively inviting new [security advisors](https://github.com/containerd/project/blob/main/GOVERNANCE.md#security-advisors) to join the team.
-* New sub-projects are being created, core and non-core that could use additional development help.
-* Each of the [containerd projects](https://github.com/containerd) has a list of issues currently being worked on or that need help resolving.
+
+- Documentation help is needed to make the product easier to consume and extend.
+- We need OSS community outreach / organizing help to get the word out; manage
+  and create messaging and educational content; and to help with social media, community forums/groups, and google groups.
+- We are actively inviting new [security advisors](https://github.com/containerd/project/blob/main/GOVERNANCE.md#security-advisors) to join the team.
+- New sub-projects are being created, core and non-core that could use additional development help.
+- Each of the [containerd projects](https://github.com/containerd) has a list of issues currently being worked on or that need help resolving.
   - If the issue has not already been assigned to someone, or has not made recent progress and you are interested, please inquire.
   - If you are interested in starting with a smaller / beginner level issue, look for issues with an `exp/beginner` tag, for example [containerd/containerd beginner issues.](https://github.com/containerd/containerd/issues?q=is%3Aissue+is%3Aopen+label%3Aexp%2Fbeginner)
 
 ## Getting Started
 
 See our documentation on [containerd.io](https://containerd.io):
-* [for ops and admins](docs/ops.md)
-* [namespaces](docs/namespaces.md)
-* [client options](docs/client-opts.md)
+
+- [for ops and admins](docs/ops.md)
+- [namespaces](docs/namespaces.md)
+- [client options](docs/client-opts.md)
 
 See how to build containerd from source at [BUILDING](BUILDING.md).
 
@@ -68,7 +78,6 @@ your system. See more details in [Checkpoint and Restore](#checkpoint-and-restor
 
 Build requirements for developers are listed in [BUILDING](BUILDING.md).
 
-
 ## Supported Registries
 
 Any registry which is compliant with the [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec)
@@ -102,7 +111,7 @@ func main() {
 
 ### Namespaces
 
-Namespaces allow multiple consumers to use the same containerd without conflicting with each other.  It has the benefit of sharing content but still having separation with containers and images.
+Namespaces allow multiple consumers to use the same containerd without conflicting with each other. It has the benefit of sharing content but still having separation with containers and images.
 
 To set a namespace for requests to the API:
 
@@ -132,7 +141,7 @@ err := client.Push(context, "docker.io/library/redis:latest", image.Target())
 
 ### Containers
 
-In containerd, a container is a metadata object.  Resources such as an OCI runtime specification, image, root filesystem, and other metadata can be attached to a container.
+In containerd, a container is a metadata object. Resources such as an OCI runtime specification, image, root filesystem, and other metadata can be attached to a container.
 
 ```go
 redis, err := client.NewContainer(context, "redis-master")
@@ -141,7 +150,7 @@ defer redis.Delete(context)
 
 ### OCI Runtime Specification
 
-containerd fully supports the OCI runtime specification for running containers.  We have built in functions to help you generate runtime specifications based on images as well as custom parameters.
+containerd fully supports the OCI runtime specification for running containers. We have built in functions to help you generate runtime specifications based on images as well as custom parameters.
 
 You can specify options when creating a container about how to modify the specification.
 
@@ -151,7 +160,7 @@ redis, err := client.NewContainer(context, "redis-master", containerd.WithNewSpe
 
 ### Root Filesystems
 
-containerd allows you to use overlay or snapshot filesystems with your containers.  It comes with built in support for overlayfs and btrfs.
+containerd allows you to use overlay or snapshot filesystems with your containers. It comes with built in support for overlayfs and btrfs.
 
 ```go
 // pull an image and unpack it into the configured snapshotter
@@ -175,7 +184,7 @@ for i := 0; i < 10; i++ {
 
 ### Tasks
 
-Taking a container object and turning it into a runnable process on a system is done by creating a new `Task` from the container.  A task represents the runnable object within containerd.
+Taking a container object and turning it into a runnable process on a system is done by creating a new `Task` from the container. A task represents the runnable object within containerd.
 
 ```go
 // create a new task
@@ -195,7 +204,7 @@ status, err := task.Wait(context)
 
 ### Checkpoint and Restore
 
-If you have [criu](https://criu.org/Main_Page) installed on your machine you can checkpoint and restore containers and their tasks.  This allows you to clone and/or live migrate containers to other machines.
+If you have [criu](https://criu.org/Main_Page) installed on your machine you can checkpoint and restore containers and their tasks. This allows you to clone and/or live migrate containers to other machines.
 
 ```go
 // checkpoint the task then push it to a registry
@@ -280,27 +289,30 @@ loaded for the user's shell environment.
 `cri` is a native plugin of containerd. Since containerd 1.1, the cri plugin is built into the release binaries and enabled by default.
 
 > **Note:** As of containerd 1.5, the `cri` plugin is merged into the containerd/containerd repo. For example, the source code previously stored under [`containerd/cri/pkg`](https://github.com/containerd/cri/tree/release/1.4/pkg)
-was moved to [`containerd/containerd/pkg/cri` package](https://github.com/containerd/containerd/tree/main/pkg/cri).
+> was moved to [`containerd/containerd/pkg/cri` package](https://github.com/containerd/containerd/tree/main/pkg/cri).
 
 The `cri` plugin has reached GA status, representing that it is:
-* Feature complete
-* Works with Kubernetes 1.10 and above
-* Passes all [CRI validation tests](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/cri-validation.md).
-* Passes all [node e2e tests](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/e2e-node-tests.md).
-* Passes all [e2e tests](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-testing/e2e-tests.md).
+
+- Feature complete
+- Works with Kubernetes 1.10 and above
+- Passes all [CRI validation tests](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/cri-validation.md).
+- Passes all [node e2e tests](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/e2e-node-tests.md).
+- Passes all [e2e tests](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-testing/e2e-tests.md).
 
 See results on the containerd k8s [test dashboard](https://k8s-testgrid.appspot.com/sig-node-containerd)
 
 #### Validating Your `cri` Setup
+
 A Kubernetes incubator project, [cri-tools](https://github.com/kubernetes-sigs/cri-tools), includes programs for exercising CRI implementations. More importantly, cri-tools includes the program `critest` which is used for running [CRI Validation Testing](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/cri-validation.md).
 
 #### CRI Guides
-* [Installing with Ansible and Kubeadm](contrib/ansible/README.md)
-* [For Non-Ansible Users, Preforming a Custom Installation Using the Release Tarball and Kubeadm](docs/cri/installation.md)
-* [CRI Plugin Testing Guide](./docs/cri/testing.md)
-* [Debugging Pods, Containers, and Images with `crictl`](./docs/cri/crictl.md)
-* [Configuring `cri` Plugins](./docs/cri/config.md)
-* [Configuring containerd](https://github.com/containerd/containerd/blob/main/docs/man/containerd-config.8.md)
+
+- [Installing with Ansible and Kubeadm](contrib/ansible/README.md)
+- [For Non-Ansible Users, Preforming a Custom Installation Using the Release Tarball and Kubeadm](docs/cri/installation.md)
+- [CRI Plugin Testing Guide](./docs/cri/testing.md)
+- [Debugging Pods, Containers, and Images with `crictl`](./docs/cri/crictl.md)
+- [Configuring `cri` Plugins](./docs/cri/config.md)
+- [Configuring containerd](https://github.com/containerd/containerd/blob/main/docs/man/containerd-config.8.md)
 
 ### Communication
 
@@ -315,7 +327,7 @@ A third party security audit was performed by Cure53 in 4Q2018; the [full report
 
 ### Reporting security issues
 
-__If you are reporting a security issue, please reach out discreetly at security@containerd.io__.
+**If you are reporting a security issue, please reach out discreetly at security@containerd.io**.
 
 ## Licenses
 
@@ -331,9 +343,10 @@ However, all projects within the repo have common maintainership, governance, an
 guidelines which are stored in a `project` repository commonly for all containerd projects.
 
 Please find all these core project documents, including the:
- * [Project governance](https://github.com/containerd/project/blob/main/GOVERNANCE.md),
- * [Maintainers](https://github.com/containerd/project/blob/main/MAINTAINERS),
- * and [Contributing guidelines](https://github.com/containerd/project/blob/main/CONTRIBUTING.md)
+
+- [Project governance](https://github.com/containerd/project/blob/main/GOVERNANCE.md),
+- [Maintainers](https://github.com/containerd/project/blob/main/MAINTAINERS),
+- and [Contributing guidelines](https://github.com/containerd/project/blob/main/CONTRIBUTING.md)
 
 information in our [`containerd/project`](https://github.com/containerd/project) repository.
 

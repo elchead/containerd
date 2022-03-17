@@ -3,9 +3,11 @@ package server
 import (
 	"fmt"
 	"github.com/containerd/containerd"
+	"github.com/containerd/containerd/pkg/cri/util"
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
-	"syscall"
+	"log"
+	// "syscall"
 )
 
 func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.CheckpointContainerRequest) (retRes *runtime.CheckpointContainerResponse, retErr error) {
@@ -17,7 +19,9 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 	if err != nil {
 		return nil, fmt.Errorf("failed to checkpoint container task: %v", err)
 	}
-	opts := []containerd.CheckpointTaskOpts{containerd.WithCheckpointImagePath(r.GetOptions().GetCheckpointPath())}
+	checkPath := r.GetOptions().GetCheckpointPath()
+	save := util.GetTmpPath(checkPath, "/mnt/migration")
+	opts := []containerd.CheckpointTaskOpts{containerd.WithCheckpointImagePath(save)}
 	if !r.GetOptions().LeaveRunning {
 		opts = append(opts, containerd.WithCheckpointExit())
 	}
@@ -26,9 +30,12 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 		return nil, fmt.Errorf("failed to checkpoint container: %v", err)
 	}
 
-	if !r.GetOptions().GetLeaveRunning() {
-		task.Kill(ctx, syscall.SIGKILL)
+	log.Println("Start upload")
+	err = util.UploadDirAz(save)
+	if err != nil {
+		return nil, err
 	}
-
+	log.Println("Finish upload")
+	defer util.DeleteAllFiles(save)
 	return &runtime.CheckpointContainerResponse{}, nil
 }

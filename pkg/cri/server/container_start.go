@@ -36,7 +36,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1"
-	runtime_alpha "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
+	// runtime_alpha "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
 )
 
 // StartContainer starts the container.

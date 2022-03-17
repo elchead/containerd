@@ -9,7 +9,7 @@ import (
 )
 
 func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.CheckpointContainerRequest) (retRes *runtime.CheckpointContainerResponse, retErr error) {
-	cntr, err := c.containerStore.Get(r.GetContainerID())
+	cntr, err := c.containerStore.Get(r.GetContainerId())
 	if err != nil {
 		return nil, fmt.Errorf("failed to find container: %v", err)
 	}

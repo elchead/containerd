@@ -46,38 +46,6 @@ func newInstrumentedAlphaService(c *criService) grpcAlphaServices {
 	return &instrumentedAlphaService{c: c}
 }
 
-func (in *instrumentedService) RestoreContainer(ctx context.Context, r *runtime_alpha.RestoreContainerRequest) (_ *runtime_alpha.RestoreContainerResponse, err error) {
-	if err := in.checkInitialized(); err != nil {
-		return nil, err
-	}
-	log.G(ctx).Infof("RestoreContainer for %q with %s", r.GetContainerID(), r.GetOptions().GetCheckpointPath())
-	defer func() {
-		if err != nil {
-			log.G(ctx).WithError(err).Errorf("RestoreContainer for %q failed", r.GetContainerID())
-		} else {
-			log.G(ctx).Infof("RestoreContainer for %q returns successfully", r.GetContainerID())
-		}
-	}()
-	res, err := in.c.RestoreContainer(ctrdutil.WithNamespace(ctx), r)
-	return res, errdefs.ToGRPC(err)
-}
-
-func (in *instrumentedService) CheckpointContainer(ctx context.Context, r *runtime_alpha.CheckpointContainerRequest) (res *runtime_alpha.CheckpointContainerResponse, err error) {
-	if err := in.checkInitialized(); err != nil {
-		return nil, err
-	}
-	log.G(ctx).Infof("CheckpointContainer for %q at %s", r.GetContainerID(), r.GetOptions().GetCheckpointPath())
-	defer func() {
-		if err != nil {
-			log.G(ctx).WithError(err).Errorf("CheckpointContainer for %q failed", r.GetContainerID())
-		} else {
-			log.G(ctx).Infof("CheckpointContainer for %q returns successfully", r.GetContainerID())
-		}
-	}()
-	res, err = in.c.CheckpointContainer(ctrdutil.WithNamespace(ctx), r)
-	return res, errdefs.ToGRPC(err)
-}
-
 // checkInitialized returns error if the server is not fully initialized.
 // GRPC service request handlers should return error before server is fully
 // initialized.
@@ -116,7 +84,7 @@ func (in *instrumentedService) RunPodSandbox(ctx context.Context, r *runtime.Run
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) RunPodSandbox(ctx context.Context, r *runtime.RunPodSandboxRequest) (res *runtime.RunPodSandboxResponse, err error) {
+func (in *instrumentedAlphaService) RunPodSandbox(ctx context.Context, r *runtime_alpha.RunPodSandboxRequest) (res *runtime_alpha.RunPodSandboxResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -136,7 +104,7 @@ func (in *instrumentedAlphaService) RunPodSandbox(ctx context.Context, r *runtim
 	var v1res *runtime.RunPodSandboxResponse
 	v1res, err = in.c.RunPodSandbox(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.RunPodSandboxResponse{}
+		resp := &runtime_alpha.RunPodSandboxResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -169,7 +137,7 @@ func (in *instrumentedService) ListPodSandbox(ctx context.Context, r *runtime.Li
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ListPodSandbox(ctx context.Context, r *runtime.ListPodSandboxRequest) (res *runtime.ListPodSandboxResponse, err error) {
+func (in *instrumentedAlphaService) ListPodSandbox(ctx context.Context, r *runtime_alpha.ListPodSandboxRequest) (res *runtime_alpha.ListPodSandboxResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -189,7 +157,7 @@ func (in *instrumentedAlphaService) ListPodSandbox(ctx context.Context, r *runti
 	var v1res *runtime.ListPodSandboxResponse
 	v1res, err = in.c.ListPodSandbox(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ListPodSandboxResponse{}
+		resp := &runtime_alpha.ListPodSandboxResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -222,7 +190,7 @@ func (in *instrumentedService) PodSandboxStatus(ctx context.Context, r *runtime.
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) PodSandboxStatus(ctx context.Context, r *runtime.PodSandboxStatusRequest) (res *runtime.PodSandboxStatusResponse, err error) {
+func (in *instrumentedAlphaService) PodSandboxStatus(ctx context.Context, r *runtime_alpha.PodSandboxStatusRequest) (res *runtime_alpha.PodSandboxStatusResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -242,7 +210,7 @@ func (in *instrumentedAlphaService) PodSandboxStatus(ctx context.Context, r *run
 	var v1res *runtime.PodSandboxStatusResponse
 	v1res, err = in.c.PodSandboxStatus(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.PodSandboxStatusResponse{}
+		resp := &runtime_alpha.PodSandboxStatusResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -275,7 +243,7 @@ func (in *instrumentedService) StopPodSandbox(ctx context.Context, r *runtime.St
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) StopPodSandbox(ctx context.Context, r *runtime.StopPodSandboxRequest) (res *runtime.StopPodSandboxResponse, err error) {
+func (in *instrumentedAlphaService) StopPodSandbox(ctx context.Context, r *runtime_alpha.StopPodSandboxRequest) (res *runtime_alpha.StopPodSandboxResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -295,7 +263,7 @@ func (in *instrumentedAlphaService) StopPodSandbox(ctx context.Context, r *runti
 	var v1res *runtime.StopPodSandboxResponse
 	v1res, err = in.c.StopPodSandbox(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.StopPodSandboxResponse{}
+		resp := &runtime_alpha.StopPodSandboxResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -328,7 +296,7 @@ func (in *instrumentedService) RemovePodSandbox(ctx context.Context, r *runtime.
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) RemovePodSandbox(ctx context.Context, r *runtime.RemovePodSandboxRequest) (res *runtime.RemovePodSandboxResponse, err error) {
+func (in *instrumentedAlphaService) RemovePodSandbox(ctx context.Context, r *runtime_alpha.RemovePodSandboxRequest) (res *runtime_alpha.RemovePodSandboxResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -348,7 +316,7 @@ func (in *instrumentedAlphaService) RemovePodSandbox(ctx context.Context, r *run
 	var v1res *runtime.RemovePodSandboxResponse
 	v1res, err = in.c.RemovePodSandbox(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.RemovePodSandboxResponse{}
+		resp := &runtime_alpha.RemovePodSandboxResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -381,7 +349,7 @@ func (in *instrumentedService) PortForward(ctx context.Context, r *runtime.PortF
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) PortForward(ctx context.Context, r *runtime.PortForwardRequest) (res *runtime.PortForwardResponse, err error) {
+func (in *instrumentedAlphaService) PortForward(ctx context.Context, r *runtime_alpha.PortForwardRequest) (res *runtime_alpha.PortForwardResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -401,7 +369,7 @@ func (in *instrumentedAlphaService) PortForward(ctx context.Context, r *runtime.
 	var v1res *runtime.PortForwardResponse
 	v1res, err = in.c.PortForward(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.PortForwardResponse{}
+		resp := &runtime_alpha.PortForwardResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -437,7 +405,7 @@ func (in *instrumentedService) CreateContainer(ctx context.Context, r *runtime.C
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) CreateContainer(ctx context.Context, r *runtime.CreateContainerRequest) (res *runtime.CreateContainerResponse, err error) {
+func (in *instrumentedAlphaService) CreateContainer(ctx context.Context, r *runtime_alpha.CreateContainerRequest) (res *runtime_alpha.CreateContainerResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -460,7 +428,7 @@ func (in *instrumentedAlphaService) CreateContainer(ctx context.Context, r *runt
 	var v1res *runtime.CreateContainerResponse
 	v1res, err = in.c.CreateContainer(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.CreateContainerResponse{}
+		resp := &runtime_alpha.CreateContainerResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -494,7 +462,7 @@ func (in *instrumentedService) StartContainer(ctx context.Context, r *runtime.St
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) StartContainer(ctx context.Context, r *runtime.StartContainerRequest) (res *runtime.StartContainerResponse, err error) {
+func (in *instrumentedAlphaService) StartContainer(ctx context.Context, r *runtime_alpha.StartContainerRequest) (res *runtime_alpha.StartContainerResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -514,7 +482,7 @@ func (in *instrumentedAlphaService) StartContainer(ctx context.Context, r *runti
 	var v1res *runtime.StartContainerResponse
 	v1res, err = in.c.StartContainer(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.StartContainerResponse{}
+		resp := &runtime_alpha.StartContainerResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -548,7 +516,7 @@ func (in *instrumentedService) ListContainers(ctx context.Context, r *runtime.Li
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ListContainers(ctx context.Context, r *runtime.ListContainersRequest) (res *runtime.ListContainersResponse, err error) {
+func (in *instrumentedAlphaService) ListContainers(ctx context.Context, r *runtime_alpha.ListContainersRequest) (res *runtime_alpha.ListContainersResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -569,7 +537,7 @@ func (in *instrumentedAlphaService) ListContainers(ctx context.Context, r *runti
 	var v1res *runtime.ListContainersResponse
 	v1res, err = in.c.ListContainers(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ListContainersResponse{}
+		resp := &runtime_alpha.ListContainersResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -602,7 +570,7 @@ func (in *instrumentedService) ContainerStatus(ctx context.Context, r *runtime.C
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ContainerStatus(ctx context.Context, r *runtime.ContainerStatusRequest) (res *runtime.ContainerStatusResponse, err error) {
+func (in *instrumentedAlphaService) ContainerStatus(ctx context.Context, r *runtime_alpha.ContainerStatusRequest) (res *runtime_alpha.ContainerStatusResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -622,7 +590,7 @@ func (in *instrumentedAlphaService) ContainerStatus(ctx context.Context, r *runt
 	var v1res *runtime.ContainerStatusResponse
 	v1res, err = in.c.ContainerStatus(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ContainerStatusResponse{}
+		resp := &runtime_alpha.ContainerStatusResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -655,7 +623,7 @@ func (in *instrumentedService) StopContainer(ctx context.Context, r *runtime.Sto
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) StopContainer(ctx context.Context, r *runtime.StopContainerRequest) (res *runtime.StopContainerResponse, err error) {
+func (in *instrumentedAlphaService) StopContainer(ctx context.Context, r *runtime_alpha.StopContainerRequest) (res *runtime_alpha.StopContainerResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -675,7 +643,7 @@ func (in *instrumentedAlphaService) StopContainer(ctx context.Context, r *runtim
 	var v1res *runtime.StopContainerResponse
 	v1res, err = in.c.StopContainer(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.StopContainerResponse{}
+		resp := &runtime_alpha.StopContainerResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -708,7 +676,7 @@ func (in *instrumentedService) RemoveContainer(ctx context.Context, r *runtime.R
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) RemoveContainer(ctx context.Context, r *runtime.RemoveContainerRequest) (res *runtime.RemoveContainerResponse, err error) {
+func (in *instrumentedAlphaService) RemoveContainer(ctx context.Context, r *runtime_alpha.RemoveContainerRequest) (res *runtime_alpha.RemoveContainerResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -728,7 +696,7 @@ func (in *instrumentedAlphaService) RemoveContainer(ctx context.Context, r *runt
 	var v1res *runtime.RemoveContainerResponse
 	v1res, err = in.c.RemoveContainer(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.RemoveContainerResponse{}
+		resp := &runtime_alpha.RemoveContainerResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -761,7 +729,7 @@ func (in *instrumentedService) ExecSync(ctx context.Context, r *runtime.ExecSync
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ExecSync(ctx context.Context, r *runtime.ExecSyncRequest) (res *runtime.ExecSyncResponse, err error) {
+func (in *instrumentedAlphaService) ExecSync(ctx context.Context, r *runtime_alpha.ExecSyncRequest) (res *runtime_alpha.ExecSyncResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -781,7 +749,7 @@ func (in *instrumentedAlphaService) ExecSync(ctx context.Context, r *runtime.Exe
 	var v1res *runtime.ExecSyncResponse
 	v1res, err = in.c.ExecSync(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ExecSyncResponse{}
+		resp := &runtime_alpha.ExecSyncResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -815,7 +783,7 @@ func (in *instrumentedService) Exec(ctx context.Context, r *runtime.ExecRequest)
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) Exec(ctx context.Context, r *runtime.ExecRequest) (res *runtime.ExecResponse, err error) {
+func (in *instrumentedAlphaService) Exec(ctx context.Context, r *runtime_alpha.ExecRequest) (res *runtime_alpha.ExecResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -836,7 +804,7 @@ func (in *instrumentedAlphaService) Exec(ctx context.Context, r *runtime.ExecReq
 	var v1res *runtime.ExecResponse
 	v1res, err = in.c.Exec(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ExecResponse{}
+		resp := &runtime_alpha.ExecResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -869,7 +837,7 @@ func (in *instrumentedService) Attach(ctx context.Context, r *runtime.AttachRequ
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) Attach(ctx context.Context, r *runtime.AttachRequest) (res *runtime.AttachResponse, err error) {
+func (in *instrumentedAlphaService) Attach(ctx context.Context, r *runtime_alpha.AttachRequest) (res *runtime_alpha.AttachResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -889,7 +857,7 @@ func (in *instrumentedAlphaService) Attach(ctx context.Context, r *runtime.Attac
 	var v1res *runtime.AttachResponse
 	v1res, err = in.c.Attach(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.AttachResponse{}
+		resp := &runtime_alpha.AttachResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -922,7 +890,7 @@ func (in *instrumentedService) UpdateContainerResources(ctx context.Context, r *
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) UpdateContainerResources(ctx context.Context, r *runtime.UpdateContainerResourcesRequest) (res *runtime.UpdateContainerResourcesResponse, err error) {
+func (in *instrumentedAlphaService) UpdateContainerResources(ctx context.Context, r *runtime_alpha.UpdateContainerResourcesRequest) (res *runtime_alpha.UpdateContainerResourcesResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -942,7 +910,7 @@ func (in *instrumentedAlphaService) UpdateContainerResources(ctx context.Context
 	var v1res *runtime.UpdateContainerResourcesResponse
 	v1res, err = in.c.UpdateContainerResources(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.UpdateContainerResourcesResponse{}
+		resp := &runtime_alpha.UpdateContainerResourcesResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -976,7 +944,7 @@ func (in *instrumentedService) PullImage(ctx context.Context, r *runtime.PullIma
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) PullImage(ctx context.Context, r *runtime.PullImageRequest) (res *runtime.PullImageResponse, err error) {
+func (in *instrumentedAlphaService) PullImage(ctx context.Context, r *runtime_alpha.PullImageRequest) (res *runtime_alpha.PullImageResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -997,7 +965,7 @@ func (in *instrumentedAlphaService) PullImage(ctx context.Context, r *runtime.Pu
 	var v1res *runtime.PullImageResponse
 	v1res, err = in.c.PullImage(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.PullImageResponse{}
+		resp := &runtime_alpha.PullImageResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1031,7 +999,7 @@ func (in *instrumentedService) ListImages(ctx context.Context, r *runtime.ListIm
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ListImages(ctx context.Context, r *runtime.ListImagesRequest) (res *runtime.ListImagesResponse, err error) {
+func (in *instrumentedAlphaService) ListImages(ctx context.Context, r *runtime_alpha.ListImagesRequest) (res *runtime_alpha.ListImagesResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1052,7 +1020,7 @@ func (in *instrumentedAlphaService) ListImages(ctx context.Context, r *runtime.L
 	var v1res *runtime.ListImagesResponse
 	v1res, err = in.c.ListImages(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ListImagesResponse{}
+		resp := &runtime_alpha.ListImagesResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1086,7 +1054,7 @@ func (in *instrumentedService) ImageStatus(ctx context.Context, r *runtime.Image
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ImageStatus(ctx context.Context, r *runtime.ImageStatusRequest) (res *runtime.ImageStatusResponse, err error) {
+func (in *instrumentedAlphaService) ImageStatus(ctx context.Context, r *runtime_alpha.ImageStatusRequest) (res *runtime_alpha.ImageStatusResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1107,7 +1075,7 @@ func (in *instrumentedAlphaService) ImageStatus(ctx context.Context, r *runtime.
 	var v1res *runtime.ImageStatusResponse
 	v1res, err = in.c.ImageStatus(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ImageStatusResponse{}
+		resp := &runtime_alpha.ImageStatusResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1140,7 +1108,7 @@ func (in *instrumentedService) RemoveImage(ctx context.Context, r *runtime.Remov
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) RemoveImage(ctx context.Context, r *runtime.RemoveImageRequest) (res *runtime.RemoveImageResponse, err error) {
+func (in *instrumentedAlphaService) RemoveImage(ctx context.Context, r *runtime_alpha.RemoveImageRequest) (res *runtime_alpha.RemoveImageResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1160,7 +1128,7 @@ func (in *instrumentedAlphaService) RemoveImage(ctx context.Context, r *runtime.
 	var v1res *runtime.RemoveImageResponse
 	v1res, err = in.c.RemoveImage(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.RemoveImageResponse{}
+		resp := &runtime_alpha.RemoveImageResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1193,7 +1161,7 @@ func (in *instrumentedService) ImageFsInfo(ctx context.Context, r *runtime.Image
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ImageFsInfo(ctx context.Context, r *runtime.ImageFsInfoRequest) (res *runtime.ImageFsInfoResponse, err error) {
+func (in *instrumentedAlphaService) ImageFsInfo(ctx context.Context, r *runtime_alpha.ImageFsInfoRequest) (res *runtime_alpha.ImageFsInfoResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1213,7 +1181,7 @@ func (in *instrumentedAlphaService) ImageFsInfo(ctx context.Context, r *runtime.
 	var v1res *runtime.ImageFsInfoResponse
 	v1res, err = in.c.ImageFsInfo(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ImageFsInfoResponse{}
+		resp := &runtime_alpha.ImageFsInfoResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1246,7 +1214,7 @@ func (in *instrumentedService) PodSandboxStats(ctx context.Context, r *runtime.P
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) PodSandboxStats(ctx context.Context, r *runtime.PodSandboxStatsRequest) (res *runtime.PodSandboxStatsResponse, err error) {
+func (in *instrumentedAlphaService) PodSandboxStats(ctx context.Context, r *runtime_alpha.PodSandboxStatsRequest) (res *runtime_alpha.PodSandboxStatsResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1266,7 +1234,7 @@ func (in *instrumentedAlphaService) PodSandboxStats(ctx context.Context, r *runt
 	var v1res *runtime.PodSandboxStatsResponse
 	v1res, err = in.c.PodSandboxStats(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.PodSandboxStatsResponse{}
+		resp := &runtime_alpha.PodSandboxStatsResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1299,7 +1267,7 @@ func (in *instrumentedService) ContainerStats(ctx context.Context, r *runtime.Co
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ContainerStats(ctx context.Context, r *runtime.ContainerStatsRequest) (res *runtime.ContainerStatsResponse, err error) {
+func (in *instrumentedAlphaService) ContainerStats(ctx context.Context, r *runtime_alpha.ContainerStatsRequest) (res *runtime_alpha.ContainerStatsResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1319,7 +1287,7 @@ func (in *instrumentedAlphaService) ContainerStats(ctx context.Context, r *runti
 	var v1res *runtime.ContainerStatsResponse
 	v1res, err = in.c.ContainerStats(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ContainerStatsResponse{}
+		resp := &runtime_alpha.ContainerStatsResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1352,7 +1320,7 @@ func (in *instrumentedService) ListPodSandboxStats(ctx context.Context, r *runti
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ListPodSandboxStats(ctx context.Context, r *runtime.ListPodSandboxStatsRequest) (res *runtime.ListPodSandboxStatsResponse, err error) {
+func (in *instrumentedAlphaService) ListPodSandboxStats(ctx context.Context, r *runtime_alpha.ListPodSandboxStatsRequest) (res *runtime_alpha.ListPodSandboxStatsResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1372,7 +1340,7 @@ func (in *instrumentedAlphaService) ListPodSandboxStats(ctx context.Context, r *
 	var v1res *runtime.ListPodSandboxStatsResponse
 	v1res, err = in.c.ListPodSandboxStats(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ListPodSandboxStatsResponse{}
+		resp := &runtime_alpha.ListPodSandboxStatsResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1405,7 +1373,7 @@ func (in *instrumentedService) ListContainerStats(ctx context.Context, r *runtim
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ListContainerStats(ctx context.Context, r *runtime.ListContainerStatsRequest) (res *runtime.ListContainerStatsResponse, err error) {
+func (in *instrumentedAlphaService) ListContainerStats(ctx context.Context, r *runtime_alpha.ListContainerStatsRequest) (res *runtime_alpha.ListContainerStatsResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1425,7 +1393,7 @@ func (in *instrumentedAlphaService) ListContainerStats(ctx context.Context, r *r
 	var v1res *runtime.ListContainerStatsResponse
 	v1res, err = in.c.ListContainerStats(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.ListContainerStatsResponse{}
+		resp := &runtime_alpha.ListContainerStatsResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1458,7 +1426,7 @@ func (in *instrumentedService) Status(ctx context.Context, r *runtime.StatusRequ
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) Status(ctx context.Context, r *runtime.StatusRequest) (res *runtime.StatusResponse, err error) {
+func (in *instrumentedAlphaService) Status(ctx context.Context, r *runtime_alpha.StatusRequest) (res *runtime_alpha.StatusResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1478,7 +1446,7 @@ func (in *instrumentedAlphaService) Status(ctx context.Context, r *runtime.Statu
 	var v1res *runtime.StatusResponse
 	v1res, err = in.c.Status(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.StatusResponse{}
+		resp := &runtime_alpha.StatusResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1511,7 +1479,7 @@ func (in *instrumentedService) Version(ctx context.Context, r *runtime.VersionRe
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) Version(ctx context.Context, r *runtime.VersionRequest) (res *runtime.VersionResponse, err error) {
+func (in *instrumentedAlphaService) Version(ctx context.Context, r *runtime_alpha.VersionRequest) (res *runtime_alpha.VersionResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1543,7 +1511,7 @@ func (in *instrumentedService) UpdateRuntimeConfig(ctx context.Context, r *runti
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) UpdateRuntimeConfig(ctx context.Context, r *runtime.UpdateRuntimeConfigRequest) (res *runtime.UpdateRuntimeConfigResponse, err error) {
+func (in *instrumentedAlphaService) UpdateRuntimeConfig(ctx context.Context, r *runtime_alpha.UpdateRuntimeConfigRequest) (res *runtime_alpha.UpdateRuntimeConfigResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1563,7 +1531,7 @@ func (in *instrumentedAlphaService) UpdateRuntimeConfig(ctx context.Context, r *
 	var v1res *runtime.UpdateRuntimeConfigResponse
 	v1res, err = in.c.UpdateRuntimeConfig(ctrdutil.WithNamespace(ctx), &v1r)
 	if v1res != nil {
-		resp := &runtime.UpdateRuntimeConfigResponse{}
+		resp := &runtime_alpha.UpdateRuntimeConfigResponse{}
 		perr := v1RespToAlphaResp(v1res, resp)
 		if perr == nil {
 			res = resp
@@ -1596,7 +1564,7 @@ func (in *instrumentedService) ReopenContainerLog(ctx context.Context, r *runtim
 	return res, errdefs.ToGRPC(err)
 }
 
-func (in *instrumentedAlphaService) ReopenContainerLog(ctx context.Context, r *runtime.ReopenContainerLogRequest) (res *runtime.ReopenContainerLogResponse, err error) {
+func (in *instrumentedAlphaService) ReopenContainerLog(ctx context.Context, r *runtime_alpha.ReopenContainerLogRequest) (res *runtime_alpha.ReopenContainerLogResponse, err error) {
 	if err := in.checkInitialized(); err != nil {
 		return nil, err
 	}
@@ -1618,7 +1586,7 @@ func (in *instrumentedAlphaService) ReopenContainerLog(ctx context.Context, r *r
 			if v1res != nil {
 				p, perr := v1res.Marshal()
 				if perr == nil {
-					resp := &runtime.ReopenContainerLogResponse{}
+					resp := &runtime_alpha.ReopenContainerLogResponse{}
 					if perr = resp.Unmarshal(p); perr == nil {
 						res = resp
 					}

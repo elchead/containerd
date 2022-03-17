@@ -182,6 +182,149 @@ func (c *criService) StartContainer(ctx context.Context, r *runtime.StartContain
 	return &runtime.StartContainerResponse{}, nil
 }
 
+func (c *criService) startContainer(ctx context.Context, containerID string, opts ...containerd.NewTaskOpts) (retErr error) {
+	start := time.Now()
+	cntr, err := c.containerStore.Get(containerID)
+	if err != nil {
+		return fmt.Errorf("an error occurred when try to find container %q: %w", containerID, err)
+	}
+
+	info, err := cntr.Container.Info(ctx)
+	if err != nil {
+		return fmt.Errorf("get container info: %w", err)
+	}
+
+	id := cntr.ID
+	meta := cntr.Metadata
+	container := cntr.Container
+	config := meta.Config
+
+	// Set starting state to prevent other start/remove operations against this container
+	// while it's being started.
+	if err := setContainerStarting(cntr); err != nil {
+		return fmt.Errorf("failed to set starting state for container %q: %w", id, err)
+	}
+	defer func() {
+		if retErr != nil {
+			// Set container to exited if fail to start.
+			if err := cntr.Status.UpdateSync(func(status containerstore.Status) (containerstore.Status, error) {
+				status.Pid = 0
+				status.FinishedAt = time.Now().UnixNano()
+				status.ExitCode = errorStartExitCode
+				status.Reason = errorStartReason
+				status.Message = retErr.Error()
+				return status, nil
+			}); err != nil {
+				log.G(ctx).WithError(err).Errorf("failed to set start failure state for container %q", id)
+			}
+		}
+		if err := resetContainerStarting(cntr); err != nil {
+			log.G(ctx).WithError(err).Errorf("failed to reset starting state for container %q", id)
+		}
+	}()
+
+	// Get sandbox config from sandbox store.
+	sandbox, err := c.sandboxStore.Get(meta.SandboxID)
+	if err != nil {
+		return fmt.Errorf("sandbox %q not found: %w", meta.SandboxID, err)
+	}
+	sandboxID := meta.SandboxID
+	if sandbox.Status.Get().State != sandboxstore.StateReady {
+		return fmt.Errorf("sandbox container %q is not running", sandboxID)
+	}
+
+	// Recheck target container validity in Linux namespace options.
+	if linux := config.GetLinux(); linux != nil {
+		nsOpts := linux.GetSecurityContext().GetNamespaceOptions()
+		if nsOpts.GetPid() == runtime.NamespaceMode_TARGET {
+			_, err := c.validateTargetContainer(sandboxID, nsOpts.TargetId)
+			if err != nil {
+				return fmt.Errorf("invalid target container: %w", err)
+			}
+		}
+	}
+
+	ioCreation := func(id string) (_ containerdio.IO, err error) {
+		stdoutWC, stderrWC, err := c.createContainerLoggers(meta.LogPath, config.GetTty())
+		if err != nil {
+			return nil, fmt.Errorf("failed to create container loggers: %w", err)
+		}
+		cntr.IO.AddOutput("log", stdoutWC, stderrWC)
+		cntr.IO.Pipe()
+		return cntr.IO, nil
+	}
+
+	ctrInfo, err := container.Info(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get container info: %w", err)
+	}
+
+	ociRuntime, err := c.getSandboxRuntime(sandbox.Config, sandbox.Metadata.RuntimeHandler)
+	if err != nil {
+		return fmt.Errorf("failed to get sandbox runtime: %w", err)
+	}
+
+	taskOpts := c.taskOpts(ctrInfo.Runtime.Name)
+	taskOpts = append(taskOpts, opts...) //TODO NEW
+	if ociRuntime.Path != "" {
+		taskOpts = append(taskOpts, containerd.WithRuntimePath(ociRuntime.Path))
+	}
+	task, err := container.NewTask(ctx, ioCreation, taskOpts...)
+	if err != nil {
+		return fmt.Errorf("failed to create containerd task: %w", err)
+	}
+	defer func() {
+		if retErr != nil {
+			deferCtx, deferCancel := ctrdutil.DeferContext()
+			defer deferCancel()
+			// It's possible that task is deleted by event monitor.
+			if _, err := task.Delete(deferCtx, WithNRISandboxDelete(sandboxID), containerd.WithProcessKill); err != nil && !errdefs.IsNotFound(err) {
+				log.G(ctx).WithError(err).Errorf("Failed to delete containerd task %q", id)
+			}
+		}
+	}()
+
+	// wait is a long running background request, no timeout needed.
+	exitCh, err := task.Wait(ctrdutil.NamespacedContext())
+	if err != nil {
+		return fmt.Errorf("failed to wait for containerd task: %w", err)
+	}
+	nric, err := nri.New()
+	if err != nil {
+		log.G(ctx).WithError(err).Error("unable to create nri client")
+	}
+	if nric != nil {
+		nriSB := &nri.Sandbox{
+			ID:     sandboxID,
+			Labels: sandbox.Config.Labels,
+		}
+		if _, err := nric.InvokeWithSandbox(ctx, task, v1.Create, nriSB); err != nil {
+			return fmt.Errorf("nri invoke: %w", err)
+		}
+	}
+
+	// Start containerd task.
+	if err := task.Start(ctx); err != nil {
+		return fmt.Errorf("failed to start containerd task %q: %w", id, err)
+	}
+
+	// Update container start timestamp.
+	if err := cntr.Status.UpdateSync(func(status containerstore.Status) (containerstore.Status, error) {
+		status.Pid = task.Pid()
+		status.StartedAt = time.Now().UnixNano()
+		return status, nil
+	}); err != nil {
+		return fmt.Errorf("failed to update container %q state: %w", id, err)
+	}
+
+	// It handles the TaskExit event and update container state after this.
+	c.eventMonitor.startContainerExitMonitor(context.Background(), id, task.Pid(), exitCh)
+
+	containerStartTimer.WithValues(info.Runtime.Name).UpdateSince(start)
+
+	return nil
+}
+
 // setContainerStarting sets the container into starting state. In starting state, the
 // container will not be removed or started again.
 func setContainerStarting(container containerstore.Container) error {

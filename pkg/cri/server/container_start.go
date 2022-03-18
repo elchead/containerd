@@ -304,7 +304,8 @@ func (c *criService) startContainer(ctx context.Context, containerID string, opt
 	}
 
 	// Start containerd task.
-	if err := task.Start(context.TODO()); err != nil {
+	// ctx1 := namespaces.WithNamespace(context.TODO(), req.Name)
+	if err := task.Start(ctx); err != nil {
 		return fmt.Errorf("failed to start containerd task %q: %w", id, err)
 	}
 

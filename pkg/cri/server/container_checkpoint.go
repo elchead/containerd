@@ -5,7 +5,7 @@ import (
 	"github.com/containerd/containerd"
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
-	"syscall"
+	// "syscall"
 )
 
 func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.CheckpointContainerRequest) (retRes *runtime.CheckpointContainerResponse, retErr error) {

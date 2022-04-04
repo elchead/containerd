@@ -21,6 +21,7 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 	if !r.GetOptions().LeaveRunning {
 		opts = append(opts, containerd.WithCheckpointExit())
 	}
+	fmt.Println(ctx)
 	_, err = task.Checkpoint(ctx, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to checkpoint container: %v", err)

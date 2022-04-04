@@ -95,7 +95,8 @@ func (in *instrumentedAlphaService) CheckpointContainer(ctx context.Context, r *
 			log.G(ctx).Infof("CheckpointContainer for %q returns successfully", r.GetContainerId())
 		}
 	}()
-	res, err = in.c.CheckpointContainer(ctrdutil.WithNamespace(ctx), r)
+	ctodo := context.TOOO()
+	res, err = in.c.CheckpointContainer(ctrdutil.WithNamespace(ctodo), r)
 	return res, errdefs.ToGRPC(err)
 }
 

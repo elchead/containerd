@@ -16,12 +16,13 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	// time.Sleep(60 * time.Second)
 	// fmt.Println("Finished waiting restore")
 	checkPath := r.GetOptions().GetCheckpointPath()
+	save := "/var/lib/kubelet/restore"
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
-	err := util.Unzip(zipPath, checkPath)
+	err := util.Unzip(zipPath, save)
 	if err != nil {
 		return nil, err
 	}
-	if err := c.startContainer(ctx, r.GetContainerId(), containerd.WithRestoreImagePath(r.GetOptions().GetCheckpointPath())); err != nil {
+	if err := c.startContainer(ctx, r.GetContainerId(), containerd.WithRestoreImagePath(save)); err != nil {
 		return nil, fmt.Errorf("failed to restore container: %v", err)
 	}
 	return &runtime.RestoreContainerResponse{}, nil

@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/containerd/containerd"
+	"github.com/containerd/containerd/pkg/cri/util"
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
 	// "syscall"
@@ -25,6 +26,13 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 	_, err = task.Checkpoint(ctx, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to checkpoint container: %v", err)
+	}
+
+	checkPath := r.GetOptions().GetCheckpointPath()
+	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
+	err := util.RecursiveZip(checkPath, zipPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to zip checkpoint: %v, %s, %s", err, checkPath, zipPath)
 	}
 
 	// if !r.GetOptions().GetLeaveRunning() {

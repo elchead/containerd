@@ -1,6 +1,7 @@
 package server
 
 import (
+	"filepath"
 	"fmt"
 	"github.com/containerd/containerd"
 	"golang.org/x/net/context"
@@ -13,7 +14,13 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	// fmt.Println("Waiting 60s before restore")
 	// time.Sleep(60 * time.Second)
 	// fmt.Println("Finished waiting restore")
-	fmt.Println("Restore here:", r.GetOptions().GetCheckpointPath())
+	checkPath := r.GetOptions().GetCheckpointPath()
+	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
+	fmt.Println("Restore here", checkPath, zipPath)
+	err := util.Unzip(zipPath, checkPath)
+	if err != nil {
+		return nil, err
+	}
 	if err := c.startContainer(ctx, r.GetContainerId(), containerd.WithRestoreImagePath(r.GetOptions().GetCheckpointPath())); err != nil {
 		return nil, fmt.Errorf("failed to restore container: %v", err)
 	}

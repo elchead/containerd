@@ -1,6 +1,7 @@
 package server
 
 import (
+	"filepath"
 	"fmt"
 	"github.com/containerd/containerd"
 	"golang.org/x/net/context"
@@ -15,7 +16,6 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	// fmt.Println("Finished waiting restore")
 	checkPath := r.GetOptions().GetCheckpointPath()
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
-	fmt.Println("Restore here", checkPath, zipPath)
 	err := util.Unzip(zipPath, checkPath)
 	if err != nil {
 		return &runtime.RestoreContainerResponse{}

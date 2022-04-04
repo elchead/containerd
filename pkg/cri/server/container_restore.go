@@ -18,7 +18,7 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
 	err := util.Unzip(zipPath, checkPath)
 	if err != nil {
-		return &runtime.RestoreContainerResponse{}
+		return nil, err
 	}
 	if err := c.startContainer(ctx, r.GetContainerId(), containerd.WithRestoreImagePath(r.GetOptions().GetCheckpointPath())); err != nil {
 		return nil, fmt.Errorf("failed to restore container: %v", err)

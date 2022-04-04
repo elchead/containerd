@@ -1,11 +1,11 @@
 package server
 
 import (
-	"filepath"
 	"fmt"
 	"github.com/containerd/containerd"
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
+	"path/filepath"
 )
 
 // RestoreContainer restores a container from a previously created image.

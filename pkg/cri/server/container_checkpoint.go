@@ -7,6 +7,7 @@ import (
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
 	// "syscall"
+	"path/filepath"
 )
 
 func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.CheckpointContainerRequest) (retRes *runtime.CheckpointContainerResponse, retErr error) {
@@ -30,7 +31,7 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 
 	checkPath := r.GetOptions().GetCheckpointPath()
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
-	err := util.RecursiveZip(checkPath, zipPath)
+	err = util.RecursiveZip(checkPath, zipPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to zip checkpoint: %v, %s, %s", err, checkPath, zipPath)
 	}

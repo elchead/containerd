@@ -18,7 +18,6 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	// fmt.Println("Finished waiting restore")
 	checkPath := r.GetOptions().GetCheckpointPath()
 	save := "/var/lib/kubelet/check"
-	os.Remove(save)
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
 	err := util.Unzip(zipPath, filepath.Dir(save))
 	if err != nil {

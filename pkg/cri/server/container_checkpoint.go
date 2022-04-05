@@ -7,6 +7,7 @@ import (
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
 	// "syscall"
+	"os"
 	"path/filepath"
 )
 
@@ -36,7 +37,7 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 	if err != nil {
 		return nil, fmt.Errorf("failed to zip checkpoint: %v, %s, %s", err, checkPath, zipPath)
 	}
-
+	os.Remove(save)
 	// if !r.GetOptions().GetLeaveRunning() {
 	// 	task.Kill(ctx, syscall.SIGKILL)
 	// }

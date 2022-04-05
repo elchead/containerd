@@ -16,7 +16,7 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	// time.Sleep(60 * time.Second)
 	// fmt.Println("Finished waiting restore")
 	checkPath := r.GetOptions().GetCheckpointPath()
-	save := "/var/lib/kubelet/check"
+	save := "/mnt"
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
 	err := util.Unzip(zipPath, filepath.Dir(save))
 	if err != nil {

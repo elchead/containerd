@@ -44,7 +44,7 @@ func RecursiveZip(pathToZip, destinationPath string) error {
 	if err != nil {
 		return err
 	}
-	defer os.Remove(pathToZip)
+	// defer os.Remove(pathToZip)
 	return nil
 }
 

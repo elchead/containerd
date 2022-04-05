@@ -20,7 +20,7 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 	if err != nil {
 		return nil, fmt.Errorf("failed to checkpoint container task: %v", err)
 	}
-	save := "/var/lib/kubelet/check"
+	save := "/mnt"
 	opts := []containerd.CheckpointTaskOpts{containerd.WithCheckpointImagePath(save)}
 	if !r.GetOptions().LeaveRunning {
 		opts = append(opts, containerd.WithCheckpointExit())
@@ -35,7 +35,7 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
 	err = util.RecursiveZip(save, zipPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to zip checkpoint: %v, %s, %s", err, checkPath, zipPath)
+		return nil, fmt.Errorf("failed to zip checkpoint: %v, %s, %s", err, save, zipPath)
 	}
 	os.Remove(save)
 	// if !r.GetOptions().GetLeaveRunning() {

@@ -2,10 +2,12 @@ package server
 
 import (
 	"fmt"
+	"github.com/avast/retry-go/v4"
 	"github.com/containerd/containerd"
 	"github.com/containerd/containerd/pkg/cri/util"
 	"golang.org/x/net/context"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
+	"os"
 	"path/filepath"
 )
 
@@ -18,6 +20,13 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	checkPath := r.GetOptions().GetCheckpointPath()
 	save := "/mnt/migration"
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
+	retry.Do(func() error {
+		if fileExists(zipPath) {
+			return nil
+		} else {
+			return fmt.Errorf("file not existent")
+		}
+	})
 	err := util.Unzip(zipPath, filepath.Dir(save))
 	if err != nil {
 		return nil, err
@@ -26,4 +35,12 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 		return nil, fmt.Errorf("failed to restore container: %v", err)
 	}
 	return &runtime.RestoreContainerResponse{}, nil
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }

@@ -34,11 +34,12 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 
 	checkPath := r.GetOptions().GetCheckpointPath()
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.tar.gz")
+	fmt.Println("ZIP path", zipPath)
 	err = util.RecursiveZip(save, zipPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to zip checkpoint: %v, %s, %s", err, save, zipPath)
 	}
-	os.Remove(save)
+	defer os.Remove(save)
 	// if !r.GetOptions().GetLeaveRunning() {
 	// 	task.Kill(ctx, syscall.SIGKILL)
 	// }

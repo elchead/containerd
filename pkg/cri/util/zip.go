@@ -32,9 +32,9 @@ func RecursiveZip(pathToZip, zipPath string) error {
 	for _, f := range fs {
 		files = append(files, filepath.Join(pathToZip, f.Name()))
 	}
-	out, err := os.Create("./bin/output.tar.gz")
+	out, err := os.Create(zipPath)
 	if err != nil {
-		return fmt.Errorf("Error writing archive: %v", err)
+		return fmt.Errorf("error writing archive: %v", err)
 	}
 	defer out.Close()
 

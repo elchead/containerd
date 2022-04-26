@@ -14,11 +14,11 @@ package util
 
 import (
 	"archive/tar"
-	"filepath"
 	"fmt"
 	gzip "github.com/klauspost/pgzip"
 	"io"
 	"io/ioutil"
+	"path/filepath"
 	// "log"
 	"os"
 	"os/exec"

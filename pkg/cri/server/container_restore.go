@@ -19,7 +19,7 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	// fmt.Println("Finished waiting restore")
 	checkPath := r.GetOptions().GetCheckpointPath()
 	save := "/mnt/migration"
-	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
+	zipPath := filepath.Join(filepath.Dir(checkPath), "check.tar.gz")
 	retry.Do(func() error {
 		if fileExists(zipPath) {
 			return nil
@@ -27,7 +27,7 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 			return fmt.Errorf("file not existent")
 		}
 	})
-	err := util.Unzip(zipPath, filepath.Dir(save))
+	err := util.Unzip(zipPath, save)
 	if err != nil {
 		return nil, err
 	}

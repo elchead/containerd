@@ -33,7 +33,7 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 	}
 
 	checkPath := r.GetOptions().GetCheckpointPath()
-	zipPath := filepath.Join(filepath.Dir(checkPath), "check.zip")
+	zipPath := filepath.Join(filepath.Dir(checkPath), "check.tar.gz")
 	err = util.RecursiveZip(save, zipPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to zip checkpoint: %v, %s, %s", err, save, zipPath)

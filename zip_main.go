@@ -16,7 +16,7 @@ import (
 	gzip "github.com/klauspost/pgzip"
 	"io"
 	"io/ioutil"
-	"log"
+	// "log"
 	"os"
 	"os/exec"
 )

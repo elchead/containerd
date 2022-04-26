@@ -40,7 +40,7 @@ require (
 	github.com/imdario/mergo v0.3.12
 	github.com/intel/goresctrl v0.2.0
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.11.13
+	github.com/klauspost/compress v1.15.1
 	github.com/moby/locker v1.0.1
 	github.com/moby/sys/mountinfo v0.5.0
 	github.com/moby/sys/signal v0.6.0

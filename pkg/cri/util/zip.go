@@ -14,7 +14,7 @@ package util
 
 import (
 	"archive/tar"
-	// "filepath"
+	"filepath"
 	"fmt"
 	gzip "github.com/klauspost/pgzip"
 	"io"
@@ -30,7 +30,7 @@ func RecursiveZip(pathToZip, zipPath string) error {
 	fs, err := ioutil.ReadDir(pathToZip)
 	var files []string
 	for _, f := range fs {
-		files = append(files, pathToZip+f.Name())
+		files = append(files, filepath.Join(pathToZip, f.Name()))
 	}
 	out, err := os.Create("./bin/output.tar.gz")
 	if err != nil {

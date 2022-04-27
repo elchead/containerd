@@ -27,10 +27,12 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 			return fmt.Errorf("file not existent")
 		}
 	})
+	fmt.Println("Starting unzip")
 	err := util.Unzip(zipPath, save)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("Unzip complete")
 	if err := c.startContainer(ctx, r.GetContainerId(), containerd.WithRestoreImagePath(save)); err != nil {
 		return nil, fmt.Errorf("failed to restore container: %v", err)
 	}

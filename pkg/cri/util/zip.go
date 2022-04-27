@@ -18,10 +18,10 @@ import (
 	gzip "github.com/klauspost/pgzip"
 	"io"
 	"io/ioutil"
-	"path/filepath"
-	// "log"
+	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func RecursiveZip(pathToZip, zipPath string) error {
@@ -50,8 +50,61 @@ func RecursiveZip(pathToZip, zipPath string) error {
 	return nil
 }
 
+func ExtractTarGz(src, dest string) {
+	r, err := os.Open(src)
+	if err != nil {
+		log.Fatalf("could not open zip file: %v", err)
+	}
+	uncompressedStream, err := gzip.NewReader(r)
+	if err != nil {
+		log.Fatal("ExtractTarGz: NewReader failed")
+	}
+
+	tarReader := tar.NewReader(uncompressedStream)
+
+	for {
+		header, err := tarReader.Next()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatalf("ExtractTarGz: Next() failed: %s", err.Error())
+		}
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			path := filepath.Join(dest, header.Name)
+			if err := os.Mkdir(path, 0755); err != nil {
+				log.Fatalf("ExtractTarGz: Mkdir() failed: %s", err.Error())
+			}
+		case tar.TypeReg:
+			path := filepath.Join(dest, header.Name)
+			outFile, err := os.Create(path)
+			if err != nil {
+				log.Fatalf("ExtractTarGz: Create() failed: %s", err.Error())
+			}
+			if _, err := io.Copy(outFile, tarReader); err != nil {
+				log.Fatalf("ExtractTarGz: Copy() failed: %s", err.Error())
+			}
+			outFile.Close()
+
+		default:
+			log.Fatalf(
+				"ExtractTarGz: uknown type: %s in %s",
+				header.Typeflag,
+				header.Name)
+		}
+
+	}
+}
+
 func Unzip(src, dest string) error {
-	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("mkdir -p %s && tar -xf %s -C %s", dest, src, dest))
+	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("mkdir -p %s", dest))
+	os.MkdirAll(dest, os.ModePerm)
+	ExtractTarGz(src, dest)
+	// cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("mkdir -p %s && tar -xf %s -C %s", dest, src, dest))
 	// fmt.Printf("mkdir -p %s && tar -xf %s -C %s\n", dest, src, dest)
 	return cmd.Run()
 }

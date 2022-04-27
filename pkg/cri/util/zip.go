@@ -25,9 +25,12 @@ import (
 )
 
 func RecursiveZip(pathToZip, zipPath string) error {
-
 	fmt.Println("Creating zip..")
+	os.MkdirAll(filepath.Base(zipPath), os.ModePerm)
 	fs, err := ioutil.ReadDir(pathToZip)
+	if err != nil {
+		return fmt.Errorf("error reading directory: %v", err)
+	}
 	var files []string
 	for _, f := range fs {
 		files = append(files, filepath.Join(pathToZip, f.Name()))

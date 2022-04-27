@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/avast/retry-go/v4"
+	// "github.com/avast/retry-go/v4"
 	"github.com/containerd/containerd"
 	"github.com/containerd/containerd/pkg/cri/util"
 	"golang.org/x/net/context"

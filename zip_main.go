@@ -53,7 +53,7 @@ import (
 func main() {
 	// Files which to include in the tar.gz archive
 	destPath := "./bin/test/"
-	err := util.RecursiveZip(destPath, "./bin/test.tar.gz")
+	err := util.RecursiveZip(destPath, "./bin/id1/test.tar.gz")
 	if err != nil {
 		log.Fatal(err)
 	}

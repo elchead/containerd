@@ -19,10 +19,50 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 )
+
+var (
+	suffixes [5]string
+)
+
+func round(val float64, roundOn float64, places int) (newVal float64) {
+	var round float64
+	pow := math.Pow(10, float64(places))
+	digit := pow * val
+	_, div := math.Modf(digit)
+	if div >= roundOn {
+		round = math.Ceil(digit)
+	} else {
+		round = math.Floor(digit)
+	}
+	newVal = round / pow
+	return
+}
+
+func humanFileSize(size float64) string {
+	suffixes[0] = "B"
+	suffixes[1] = "KB"
+	suffixes[2] = "MB"
+	suffixes[3] = "GB"
+	suffixes[4] = "TB"
+
+	base := math.Log(size) / math.Log(1024)
+	getSize := round(math.Pow(1024, base-math.Floor(base)), .5, 2)
+	getSuffix := suffixes[int(math.Floor(base))]
+	return strconv.FormatFloat(getSize, 'f', -1, 64) + string(getSuffix)
+}
+
+func createArchiveSizeFile(zipPath string) {
+	i, _ := os.Stat(zipPath)
+	sz := float64(i.Size())
+	sizeFile := filepath.Join(filepath.Dir(filepath.Dir(zipPath)), filepath.Base(filepath.Dir(zipPath))+"_"+humanFileSize(sz))
+	os.Create(sizeFile)
+}
 
 func RecursiveZip(pathToZip, zipPath string) error {
 	fmt.Println("Creating zip..")
@@ -46,7 +86,8 @@ func RecursiveZip(pathToZip, zipPath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create archive: %v", err)
 	}
-	fmt.Println("Created zip!")
+	createArchiveSizeFile(zipPath)
+	fmt.Println("Created archive")
 	return nil
 }
 

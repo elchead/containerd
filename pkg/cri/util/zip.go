@@ -52,7 +52,13 @@ func RecursiveZip(pathToZip, zipPath string) error {
 
 func Unzip(src, dest string) error {
 	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("mkdir -p %s && tar -xf %s -C %s", dest, src, dest))
-	fmt.Printf("mkdir -p %s && tar -xf %s -C %s\n", dest, src, dest)
+	// fmt.Printf("mkdir -p %s && tar -xf %s -C %s\n", dest, src, dest)
+	return cmd.Run()
+}
+
+func DeleteAllFiles(dir string) error {
+	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -r %s", filepath.Join(dir, "*")))
+	fmt.Printf("rm -r %s", filepath.Join(dir, "*"))
 	return cmd.Run()
 }
 

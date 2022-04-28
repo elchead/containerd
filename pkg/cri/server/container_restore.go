@@ -36,6 +36,7 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	if err := c.startContainer(ctx, r.GetContainerId(), containerd.WithRestoreImagePath(save)); err != nil {
 		return nil, fmt.Errorf("failed to restore container: %v", err)
 	}
+	defer util.DeleteAllFiles(save)
 	return &runtime.RestoreContainerResponse{}, nil
 }
 

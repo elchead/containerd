@@ -96,13 +96,20 @@ func ExtractTarGz(src, dest string) {
 	if err != nil {
 		log.Fatalf("could not open zip file: %v", err)
 	}
-	uncompressedStream, err := gzip.NewReader(r)
+	copy, err := os.Create("/mnt/migration/check.tar.gz")
+	if err != nil {
+		log.Fatalf("could not copy zip file: %v", err)
+	}
+	fmt.Println("Start copy gz")
+	io.Copy(copy, r)
+	fmt.Println("Finish copy gz")
+	uncompressedStream, err := gzip.NewReader(copy)
 	if err != nil {
 		log.Fatal("ExtractTarGz: NewReader failed")
 	}
 
 	tarReader := tar.NewReader(uncompressedStream)
-
+	fmt.Println("Start untar gz")
 	for {
 		header, err := tarReader.Next()
 
@@ -139,15 +146,16 @@ func ExtractTarGz(src, dest string) {
 		}
 
 	}
+	fmt.Println("Finish untar gz")
 }
 
 func Unzip(src, dest string) error {
-	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("mkdir -p %s", dest))
+	// cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("mkdir -p %s", dest))
 	os.MkdirAll(dest, os.ModePerm)
 	ExtractTarGz(src, dest)
 	// cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("mkdir -p %s && tar -xf %s -C %s", dest, src, dest))
 	// fmt.Printf("mkdir -p %s && tar -xf %s -C %s\n", dest, src, dest)
-	return cmd.Run()
+	return nil //cmd.Run()
 }
 
 func DeleteAllFiles(dir string) error {

@@ -102,8 +102,14 @@ func ExtractTarGz(src, dest string) {
 	}
 	fmt.Println("Start copy gz")
 	io.Copy(copy, r)
-	fmt.Println("Finish copy gz")
-	uncompressedStream, err := gzip.NewReader(copy)
+	copy.Close()
+	fmt.Println("Finished copy gz")
+	rr, err := os.Open("/mnt/migration/check.tar.gz")
+	if err != nil {
+		log.Fatalf("could not open zip file: %v", err)
+	}
+	uncompressedStream, err := gzip.NewReader(rr)
+
 	if err != nil {
 		log.Fatal("ExtractTarGz: NewReader failed")
 	}

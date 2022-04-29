@@ -27,7 +27,7 @@ import (
 )
 
 func GetId(containerPath string) string {
-	return filepath.Base(containerPath)
+	return filepath.Base(filepath.Dir(containerPath))
 }
 
 func GetTmpPath(containerPath, tmpPath string) string {

@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/avast/retry-go/v4"
+	// "github.com/avast/retry-go/v4"
 	"github.com/containerd/containerd"
 	"github.com/containerd/containerd/pkg/cri/util"
 	"golang.org/x/net/context"
@@ -18,17 +18,23 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	// time.Sleep(60 * time.Second)
 	// fmt.Println("Finished waiting restore")
 	checkPath := r.GetOptions().GetCheckpointPath()
-	save := "/mnt/migration"
+	save := util.GetTmpPath(checkPath, "/mnt/migration")
+	defer util.DeleteAllFiles(save)
+	copyPath := fmt.Sprintf("/mnt/%s_check.tar.gz",util.GetId(checkPath))
+	defer os.Delete(copyPath)
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.tar.gz")
-	retry.Do(func() error {
-		if fileExists(zipPath) {
-			return nil
-		} else {
-			return fmt.Errorf("file not existent")
-		}
-	})
+	fmt.Println("Start copy gz")
+	CopyFile(copyPath, zipPath))
+	fmt.Println("Finish copy gz")
+	// retry.Do(func() error {
+		// 	if fileExists(zipPath) {
+			// 		return nil
+			// 	} else {
+				// 		return fmt.Errorf("file not existent")
+				// 	}
+				// })
 	fmt.Println("Starting unzip")
-	err := util.Unzip(zipPath, save)
+	err := util.Unzip(copyPath, save)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +42,6 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	if err := c.startContainer(ctx, r.GetContainerId(), containerd.WithRestoreImagePath(save)); err != nil {
 		return nil, fmt.Errorf("failed to restore container: %v", err)
 	}
-	defer util.DeleteAllFiles(save)
 	return &runtime.RestoreContainerResponse{}, nil
 }
 

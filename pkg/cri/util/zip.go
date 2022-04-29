@@ -26,6 +26,16 @@ import (
 	"strconv"
 )
 
+func GetId(containerPath string) string {
+	return filepath.Base(containerPath)
+}
+
+func GetTmpPath(containerPath, tmpPath string) string {
+	path := filepath.Join(tmpPath, GetId(containerPath))
+	os.MkdirAll(path, 0755)
+	return path
+}
+
 var (
 	suffixes [5]string
 )
@@ -107,11 +117,7 @@ func RecursiveZip(pathToZip, zipPath string) error {
 }
 
 func ExtractTarGz(src, dest string) {
-	fmt.Println("Start copy gz")
-	copyPath := "/mnt/check.tar.gz"
-	CopyFile(copyPath, src)
-	fmt.Println("Finished copy gz")
-	rr, err := os.Open(copyPath)
+	rr, err := os.Open(src)
 	if err != nil {
 		log.Fatalf("could not open zip file: %v", err)
 	}

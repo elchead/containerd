@@ -20,19 +20,19 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 	if err != nil {
 		return nil, fmt.Errorf("failed to checkpoint container task: %v", err)
 	}
-	save := "/mnt/migration"
+	checkPath := r.GetOptions().GetCheckpointPath()
+	save := util.GetTmpPath(checkPath, "/mnt/migration")
+	fmt.Println("SAVE", save)
 
 	opts := []containerd.CheckpointTaskOpts{containerd.WithCheckpointImagePath(save)}
 	if !r.GetOptions().LeaveRunning {
 		opts = append(opts, containerd.WithCheckpointExit())
 	}
-	fmt.Println(ctx)
 	_, err = task.Checkpoint(ctx, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to checkpoint container: %v", err)
 	}
 
-	checkPath := r.GetOptions().GetCheckpointPath()
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.tar.gz")
 	fmt.Println("ZIP path", zipPath)
 	err = util.RecursiveZip(save, zipPath)

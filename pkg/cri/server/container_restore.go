@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	// "github.com/avast/retry-go/v4"
+	"github.com/avast/retry-go/v4"
 	"github.com/containerd/containerd"
 	"github.com/containerd/containerd/pkg/cri/util"
 	"golang.org/x/net/context"
@@ -20,13 +20,13 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	checkPath := r.GetOptions().GetCheckpointPath()
 	save := "/mnt/migration"
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.tar.gz")
-	// retry.Do(func() error {
-	// 	if fileExists(zipPath) {
-	// 		return nil
-	// 	} else {
-	// 		return fmt.Errorf("file not existent")
-	// 	}
-	// })
+	retry.Do(func() error {
+		if fileExists(zipPath) {
+			return nil
+		} else {
+			return fmt.Errorf("file not existent")
+		}
+	})
 	fmt.Println("Starting unzip")
 	err := util.Unzip(zipPath, save)
 	if err != nil {

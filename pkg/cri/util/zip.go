@@ -108,7 +108,7 @@ func RecursiveZip(pathToZip, zipPath string) error {
 
 func ExtractTarGz(src, dest string) {
 	fmt.Println("Start copy gz")
-	copyPath := "/mnt/migration/check.tar.gz"
+	copyPath := "/mnt/check.tar.gz"
 	CopyFile(copyPath, src)
 	fmt.Println("Finished copy gz")
 	rr, err := os.Open(copyPath)

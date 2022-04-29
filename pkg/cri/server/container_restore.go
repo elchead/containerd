@@ -20,19 +20,19 @@ func (c *criService) RestoreContainer(ctx context.Context, r *runtime.RestoreCon
 	checkPath := r.GetOptions().GetCheckpointPath()
 	save := util.GetTmpPath(checkPath, "/mnt/migration")
 	defer util.DeleteAllFiles(save)
-	copyPath := fmt.Sprintf("/mnt/%s_check.tar.gz",util.GetId(checkPath))
+	copyPath := fmt.Sprintf("/mnt/%s_check.tar.gz", util.GetId(checkPath))
 	defer os.Delete(copyPath)
 	zipPath := filepath.Join(filepath.Dir(checkPath), "check.tar.gz")
 	fmt.Println("Start copy gz")
-	CopyFile(copyPath, zipPath))
+	CopyFile(copyPath, zipPath)
 	fmt.Println("Finish copy gz")
 	// retry.Do(func() error {
-		// 	if fileExists(zipPath) {
-			// 		return nil
-			// 	} else {
-				// 		return fmt.Errorf("file not existent")
-				// 	}
-				// })
+	// 	if fileExists(zipPath) {
+	// 		return nil
+	// 	} else {
+	// 		return fmt.Errorf("file not existent")
+	// 	}
+	// })
 	fmt.Println("Starting unzip")
 	err := util.Unzip(copyPath, save)
 	if err != nil {

@@ -64,6 +64,21 @@ func createArchiveSizeFile(zipPath string) {
 	os.Create(sizeFile)
 }
 
+func CopyFile(copyPath, originalPath string) error {
+	r, err := os.Open(originalPath)
+	if err != nil {
+		log.Fatalf("could not open zip file: %v", err)
+	}
+	copy, err := os.Create(copyPath)
+	if err != nil {
+		log.Fatalf("could not copy zip file: %v", err)
+	}
+	fmt.Println("Start copy gz")
+	io.Copy(copy, r)
+	copy.Close()
+	return nil
+}
+
 func RecursiveZip(pathToZip, zipPath string) error {
 	fmt.Println("Creating zip..")
 	os.MkdirAll(filepath.Base(zipPath), os.ModePerm)
@@ -92,19 +107,11 @@ func RecursiveZip(pathToZip, zipPath string) error {
 }
 
 func ExtractTarGz(src, dest string) {
-	r, err := os.Open(src)
-	if err != nil {
-		log.Fatalf("could not open zip file: %v", err)
-	}
-	copy, err := os.Create("/mnt/migration/check.tar.gz")
-	if err != nil {
-		log.Fatalf("could not copy zip file: %v", err)
-	}
 	fmt.Println("Start copy gz")
-	io.Copy(copy, r)
-	copy.Close()
+	copyPath := "/mnt/migration/check.tar.gz"
+	CopyFile(copyPath, src)
 	fmt.Println("Finished copy gz")
-	rr, err := os.Open("/mnt/migration/check.tar.gz")
+	rr, err := os.Open(copyPath)
 	if err != nil {
 		log.Fatalf("could not open zip file: %v", err)
 	}

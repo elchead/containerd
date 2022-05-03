@@ -74,6 +74,22 @@ func createArchiveSizeFile(zipPath string) {
 	os.Create(sizeFile)
 }
 
+// func CopyRsync(copyPath, originalPath string) error {
+// 	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("mkdir -p %s", dest))
+// 	r, err := os.Open(originalPath)
+// 	if err != nil {
+// 		log.Fatalf("could not open zip file: %v", err)
+// 	}
+// 	copy, err := os.Create(copyPath)
+// 	if err != nil {
+// 		log.Fatalf("could not copy zip file: %v", err)
+// 	}
+// 	// fmt.Println("Start copy gz")
+// 	io.Copy(copy, r)
+// 	copy.Close()
+// 	return nil
+// }
+
 func CopyFile(copyPath, originalPath string) error {
 	r, err := os.Open(originalPath)
 	if err != nil {
@@ -83,14 +99,14 @@ func CopyFile(copyPath, originalPath string) error {
 	if err != nil {
 		log.Fatalf("could not copy zip file: %v", err)
 	}
-	fmt.Println("Start copy gz")
+	// fmt.Println("Start copy gz")
 	io.Copy(copy, r)
 	copy.Close()
 	return nil
 }
 
 func RecursiveZip(pathToZip, zipPath string) error {
-	fmt.Println("Creating zip..")
+	fmt.Println("Creating archive")
 	os.MkdirAll(filepath.Base(zipPath), os.ModePerm)
 	fs, err := ioutil.ReadDir(pathToZip)
 	if err != nil {

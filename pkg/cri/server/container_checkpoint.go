@@ -33,13 +33,19 @@ func (c *criService) CheckpointContainer(ctx context.Context, r *runtime.Checkpo
 		return nil, fmt.Errorf("failed to checkpoint container: %v", err)
 	}
 
-	zipPath := filepath.Join(filepath.Dir(checkPath), "check.tar.gz")
+	copyPath := fmt.Sprintf("/mnt/%s_check.tar.gz", util.GetId(checkPath))
+	err = util.RecursiveZip(save, copyPath)
 	fmt.Println("ZIP path", zipPath)
-	err = util.RecursiveZip(save, zipPath)
+	zipPath := filepath.Join(filepath.Dir(checkPath), "check.tar.gz")
+	fmt.Println("Start copy gz")
+
+	util.CopyFile(copyPath, zipPath)
+	fmt.Println("Finish copy gz")
 	if err != nil {
 		return nil, fmt.Errorf("failed to zip checkpoint: %v, %s, %s", err, save, zipPath)
 	}
 	defer util.DeleteAllFiles(save)
+	defer os.Remove(copyPath)
 	// defer os.Remove(save)
 	// if !r.GetOptions().GetLeaveRunning() {
 	// 	task.Kill(ctx, syscall.SIGKILL)
